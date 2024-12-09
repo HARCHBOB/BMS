@@ -1,15 +1,27 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
+import java.sql.Date;
+import java.sql.SQLException;
+
 public class Main {
     public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+        UserDAO userDAO = new UserDAO();
+        try {
+            // Create a new user
+            User newUser = new User();
+            newUser.setVardasPavarde("Jonas Jonaitis");
+            newUser.setGimimoData(Date.valueOf("1990-01-01"));
+            newUser.setPasoNumeris("AB1234567");
+            newUser.setGatve("Main St");
+            newUser.setNamas("10");
+            newUser.setButas("2A");
+            userDAO.createUser(newUser);
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
+            // Fetch and print all users
+            for (User u : userDAO.getAllUsers()) {
+                System.out.println(u.getUserId() + " " + u.getVardasPavarde());
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }
