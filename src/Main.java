@@ -1,4 +1,5 @@
 import Contents.Tables.*;
+import Contents.Transactions.*;
 
 import java.sql.*;
 
@@ -35,8 +36,23 @@ public class Main {
             user.showAll();
             whereToTake.showAll();
 
+            System.out.println("\n TEST TRANSACTIONS:");
+            UserClientTransaction userClientTx = new UserClientTransaction(con);
+            BicycleTransaction bicycleTx = new BicycleTransaction(con);
 
-            // Testing Safety:
+            // Add user and client in a transaction
+            userClientTx.addUserAndClient("Jane Doe", Date.valueOf("1992-06-15"), "XYZ123456", "Oak Street", "12", "5B", 100.0);
+
+            // Rent a bicycle and update its status
+            bicycleTx.rentBicycle(8, 1, "Main Parking", 150.0, Timestamp.valueOf("2024-12-10 09:00:00"));
+
+            // Update bicycle price and related defects
+            bicycleTx.updateBicycleAndDefects(1, 350.0, "Brake pads replaced");
+
+            // Delete user and related client
+            userClientTx.deleteUserAndClient(8);
+
+           /* // Testing Safety:
             System.out.println("\nTESTING INSERTS AND SEARCH");
 
             // Create User (required for Client, Rent, Employee)
@@ -91,7 +107,7 @@ public class Main {
             // Create Defect (requires Bicycle)
             defects.addDefect(1, "Flat tire", Date.valueOf("2024-12-09"), "Front wheel");
             System.out.println("New defect created.");
-            defects.searchDefectsByBicycleId(1);
+            defects.searchDefectsByBicycleId(1);*/
 
             con.close();
         } catch (Exception e) {
