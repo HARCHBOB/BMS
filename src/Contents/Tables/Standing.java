@@ -100,4 +100,19 @@ public class Standing extends ShowContents {
             System.out.println("New entry added successfully.");
         }
     }
+
+    public void deleteStanding(int bicycleId, String parkingPlace) throws SQLException {
+        String sql = "DELETE FROM bms.Standing WHERE Bicycle_ID = ? AND Parking_Place ILIKE ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, bicycleId);
+            ps.setString(2, "%" + parkingPlace + "%");
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.printf("Successfully deleted Standing record with Bicycle ID %d and Parking Place %s ", bicycleId, parkingPlace);
+            } else {
+                System.out.printf("No Standing record found with Bicycle ID %d and Parking Place %s ", bicycleId, parkingPlace);
+            }
+        }
+    }
 }

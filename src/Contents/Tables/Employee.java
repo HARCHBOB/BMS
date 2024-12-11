@@ -74,4 +74,18 @@ public class Employee extends ShowContents {
             System.out.println("New employee added successfully.");
         }
     }
+
+    public void deleteEmployee(int adminId) throws SQLException {
+        String sql = "DELETE FROM bms.Employee WHERE Admin_ID = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, adminId);
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("Successfully deleted Employee with Admin ID: " + adminId);
+            } else {
+                System.out.println("No Employee found with Admin ID: " + adminId);
+            }
+        }
+    }
 }

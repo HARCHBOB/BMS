@@ -100,4 +100,19 @@ public class WhereToTake extends ShowContents {
             System.out.println("New entry added successfully.");
         }
     }
+
+    public void deleteWhereToTake(String parkingPlace, int rentId) throws SQLException {
+        String sql = "DELETE FROM bms.Where_To_Take WHERE Parking_Place ILIKE ? AND Rent_ID = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, "%" + parkingPlace + "%");
+            ps.setInt(2, rentId);
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.printf("Successfully deleted Where to Take record with Parking Place %s and Rent ID %d", parkingPlace, rentId);
+            } else {
+                System.out.printf("No Where to Take record found with Parking Place %s and Rent ID %d", parkingPlace, rentId);
+            }
+        }
+    }
 }

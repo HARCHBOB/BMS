@@ -57,4 +57,18 @@ public class Logs extends ShowContents {
             }
         }
     }
+
+    public void deleteLog(int logId) throws SQLException {
+        String sql = "DELETE FROM bms.Logs WHERE Log_ID = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, logId);
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("Successfully deleted Log with ID: " + logId);
+            } else {
+                System.out.println("No Log found with ID: " + logId);
+            }
+        }
+    }
 }

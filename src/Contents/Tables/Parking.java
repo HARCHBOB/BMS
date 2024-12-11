@@ -110,4 +110,18 @@ public class Parking extends ShowContents {
             System.out.println("New parking entry added successfully.");
         }
     }
+
+    public void deleteParking(String parkingPlace) throws SQLException {
+        String sql = "DELETE FROM bms.Parking WHERE Parking_Place ILIKE ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, "%" + parkingPlace + "%");
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("Successfully deleted Parking record for place: " + parkingPlace);
+            } else {
+                System.out.println("No Parking record found for place: " + parkingPlace);
+            }
+        }
+    }
 }

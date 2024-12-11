@@ -16,18 +16,7 @@ public class Bicycle extends ShowContents {
              ResultSet rs = ps.executeQuery()) {
 
             System.out.println("Bicycles:");
-            while (rs.next()) {
-                int bicycleId = rs.getInt("Bicycle_ID");
-                double price = rs.getDouble("Price");
-                String color = rs.getString("Color");
-                String brand = rs.getString("Brand");
-                int releaseYear = rs.getInt("Release_Date");
-
-                System.out.printf(
-                        "ID: %d, Price: %.2f, Color: %s, Brand: %s, Release Year: %d%n",
-                        bicycleId, price, color, brand, releaseYear
-                );
-            }
+            outputInfo(rs);
         }
     }
 
@@ -45,18 +34,23 @@ public class Bicycle extends ShowContents {
                 if (!rs.isBeforeFirst()) {
                     System.out.println("No bicycle found with the given ID.");
                 }
-                while (rs.next()) {
-                    double price = rs.getDouble("Price");
-                    String color = rs.getString("Color");
-                    String brand = rs.getString("Brand");
-                    int releaseYear = rs.getInt("Release_Date");
-
-                    System.out.printf(
-                            "ID: %d, Price: %.2f, Color: %s, Brand: %s, Release Year: %d%n",
-                            bicycleId, price, color, brand, releaseYear
-                    );
-                }
+                outputInfo(rs);
             }
+        }
+    }
+
+    private void outputInfo(ResultSet rs) throws SQLException {
+        while (rs.next()) {
+            int bicycleId = rs.getInt("Bicycle_ID");
+            double price = rs.getDouble("Price");
+            String color = rs.getString("Color");
+            String brand = rs.getString("Brand");
+            int releaseYear = rs.getInt("Release_Date");
+
+            System.out.printf(
+                    "ID: %d, Price: %.2f, Color: %s, Brand: %s, Release Year: %d%n",
+                    bicycleId, price, color, brand, releaseYear
+            );
         }
     }
 
@@ -74,31 +68,20 @@ public class Bicycle extends ShowContents {
                 if (!rs.isBeforeFirst()) {
                     System.out.println("No bicycles found matching the given brand search term.");
                 }
-                while (rs.next()) {
-                    int bicycleId = rs.getInt("Bicycle_ID");
-                    double price = rs.getDouble("Price");
-                    String color = rs.getString("Color");
-                    String brand = rs.getString("Brand");
-                    int releaseYear = rs.getInt("Release_Date");
-
-                    System.out.printf(
-                            "ID: %d, Price: %.2f, Color: %s, Brand: %s, Release Year: %d%n",
-                            bicycleId, price, color, brand, releaseYear
-                    );
-                }
+                outputInfo(rs);
             }
         }
     }
 
     /**
-     * Creates a new bicycle entry in the bms.Bicycle table.
+     * Adds a new bicycle entry in the bms.Bicycle table.
      *
      * @param price       Bicycle price (>0 as per constraint)
      * @param color       Color of the bicycle
      * @param brand       Brand name of the bicycle (not null)
      * @param releaseYear Release year of the bicycle
      */
-    public void createBicycle(double price, String color, String brand, int releaseYear) throws SQLException {
+    public void addBicycle(double price, String color, String brand, int releaseYear) throws SQLException {
         String sql = "INSERT INTO bms.Bicycle (Price, Color, Brand, Release_Date) VALUES (?, ?, ?, ?)";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setDouble(1, price);
@@ -106,6 +89,26 @@ public class Bicycle extends ShowContents {
             ps.setString(3, brand);
             ps.setInt(4, releaseYear);
             ps.executeUpdate();
+        }
+    }
+
+    /**
+     * Deletes a bicycle by its exact ID.
+     *
+     * @param bicycleId The bicycle ID to delete.
+     * @throws SQLException if an SQL exception occurs.
+     */
+    public void deleteBicycle(int bicycleId) throws SQLException {
+        String sql = "DELETE FROM bms.Bicycle WHERE Bicycle_ID = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, bicycleId);
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("Successfully deleted bicycle with ID: " + bicycleId);
+            } else {
+                System.out.println("No bicycle found with ID: " + bicycleId);
+            }
         }
     }
 }

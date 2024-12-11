@@ -100,4 +100,19 @@ public class Taken extends ShowContents {
             System.out.println("New entry added successfully.");
         }
     }
+
+    public void deleteTaken(int bicycleId, int rentId) throws SQLException {
+        String sql = "DELETE FROM bms.Taken WHERE Bicycle_ID = ? AND Rent_ID = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, bicycleId);
+            ps.setInt(2, rentId);
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.printf("Successfully deleted Taken record with Bicycle ID %d and Rent ID %d%n ", bicycleId, rentId);
+            } else {
+                System.out.printf("No Taken record found with Bicycle ID %d and Rent ID %d%n ", bicycleId, rentId);
+            }
+        }
+    }
 }

@@ -3,7 +3,7 @@ package Contents.Transactions;
 import java.sql.*;
 
 public class BicycleTransaction {
-    private Connection con;
+    private final Connection con;
 
     public BicycleTransaction(Connection con) {
         this.con = con;

@@ -121,4 +121,18 @@ public class Rent extends ShowContents {
             System.out.println("New rent added successfully.");
         }
     }
+
+    public void deleteRent(int rentId) throws SQLException {
+        String sql = "DELETE FROM bms.Rent WHERE Rent_ID = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, rentId);
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("Successfully deleted Rent record with ID: " + rentId);
+            } else {
+                System.out.println("No Rent record found with ID: " + rentId);
+            }
+        }
+    }
 }

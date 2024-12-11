@@ -36,7 +36,7 @@ public class Main {
             user.showAll();
             whereToTake.showAll();
 
-            System.out.println("\n TEST TRANSACTIONS:");
+            /*System.out.println("\n TEST TRANSACTIONS:");
             UserClientTransaction userClientTx = new UserClientTransaction(con);
             BicycleTransaction bicycleTx = new BicycleTransaction(con);
 
@@ -50,7 +50,7 @@ public class Main {
             bicycleTx.updateBicycleAndDefects(1, 350.0, "Brake pads replaced");
 
             // Delete user and related client
-            userClientTx.deleteUserAndClient(8);
+            userClientTx.deleteUserAndClient(8);*/
 
            /* // Testing Safety:
             System.out.println("\nTESTING INSERTS AND SEARCH");
@@ -61,9 +61,9 @@ public class Main {
             System.out.println("New user created.");
             user.searchUserByName("John");
 
-            // Create Bicycle (required for Defects, Rent, Parking, Standing)
-            bicycle.createBicycle(299.99, "Red", "Trek", 2022);
-            System.out.println("New bicycle created.");
+            // Adds Bicycle (required for Defects, Rent, Parking, Standing)
+            bicycle.addBicycle(299.99, "Red", "Trek", 2022);
+            System.out.println("New bicycle added.");
             bicycle.searchBicycleByBrand("Trek");
 
             // Create Parking (required for WhereToTake)

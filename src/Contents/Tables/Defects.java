@@ -82,4 +82,18 @@ public class Defects extends ShowContents {
             System.out.println("New defect added successfully.");
         }
     }
+
+    public void deleteDefect(int defectId) throws SQLException {
+        String sql = "DELETE FROM bms.Defects WHERE Defect_ID = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, defectId);
+            int rowsAffected = ps.executeUpdate();
+
+            if (rowsAffected > 0) {
+                System.out.println("Successfully deleted Defect with ID: " + defectId);
+            } else {
+                System.out.println("No Defect found with ID: " + defectId);
+            }
+        }
+    }
 }
