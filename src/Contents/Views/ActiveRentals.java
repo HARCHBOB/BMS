@@ -22,12 +22,12 @@ public class ActiveRentals extends ShowContents {
                 int bicycleId = rs.getInt("Bicycle_ID");
                 String parkingPlace = rs.getString("Parking_Place");
                 double deposit = rs.getDouble("Deposit");
-                Timestamp issueDate = rs.getTimestamp("Issue_Time");
-                Timestamp returnDate = rs.getTimestamp("Return_Time");
+                Timestamp issueTime = rs.getTimestamp("Issue_Time");
+                Timestamp returnTime = rs.getTimestamp("Return_Time");
 
                 System.out.printf(
-                        "Rent ID: %d, User ID: %d, Bicycle ID: %d, Parking Place: %s, Deposit: %f",
-                        rentId, userId, bicycleId, parkingPlace, deposit
+                        "Rent ID: %d, User ID: %d, Bicycle ID: %d, Parking: %s, Deposit: %.2f, Issue: %s, Return: %s%n",
+                        rentId, userId, bicycleId, parkingPlace, deposit, issueTime, returnTime
                 );
             }
         }

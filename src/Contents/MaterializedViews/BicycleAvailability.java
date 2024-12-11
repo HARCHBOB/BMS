@@ -21,10 +21,14 @@ public class BicycleAvailability extends ShowContents {
             System.out.println("Bicycle Availability:");
             while (rs.next()) {
                 int bicycleId = rs.getInt("Bicycle_ID");
-                int availableCount = rs.getInt("Available_Count");
+                double price = rs.getDouble("Price");
+                String color = rs.getString("Color");
+                String brand = rs.getString("Brand");
+                int releaseYear = rs.getInt("Release_Date");
+
                 System.out.printf(
-                        "Bicycle ID: %d, Available Count: %d%n",
-                        bicycleId, availableCount
+                        "ID: %d, Price: %.2f, Color: %s, Brand: %s, Release Year: %d%n",
+                        bicycleId, price, color, brand, releaseYear
                 );
             }
         }

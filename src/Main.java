@@ -1,7 +1,6 @@
-import Contents.MaterializedViews.BicycleAvailability;
-import Contents.MaterializedViews.BicycleStatus;
 import Contents.Tables.*;
-import Contents.Views.ActiveRentals;
+import Contents.MaterializedViews.*;
+import Contents.Views.*;
 
 import java.io.IOException;
 import java.sql.*;
@@ -22,6 +21,9 @@ public class Main {
             Rent rentDAO = new Rent(con);
             Parking parkingDAO = new Parking(con);
             Defects defectsDAO = new Defects(con);
+            ActiveRentals activeRentalsDAO = new ActiveRentals(con);
+            Standing standingDAO = new Standing(con);
+            BicycleAvailability bicycleAvailabilityDAO = new BicycleAvailability(con);
 
             Scanner scanner = new Scanner(System.in);
             boolean running = true;
@@ -29,11 +31,11 @@ public class Main {
             while (running) {
                 int choice = showOptions(scanner);
                 switch (choice) {
-                    case 1 -> showActiveRents(rentDAO);
-                    case 2 -> showAvailableBikes(bicycleDAO);
+                    case 1 -> showActiveRents(activeRentalsDAO);
+                    case 2 -> showAvailableBikes(bicycleAvailabilityDAO);
                     case 3 -> bikesSubMenu(scanner, bicycleDAO);
                     case 4 -> usersSubMenu(scanner, userDAO);
-                    case 5 -> rentsSubMenu(scanner, rentDAO, bicycleDAO, userDAO, parkingDAO);
+                    case 5 -> rentsSubMenu(scanner, rentDAO, bicycleDAO, userDAO, parkingDAO, standingDAO);
                     case 6 -> defectsSubMenu(scanner, defectsDAO);
                     case 7 -> running = false;
                     default -> System.out.println("Invalid choice. Please try again.");
@@ -167,21 +169,21 @@ public class Main {
         return Integer.parseInt(scanner.nextLine());
     }
 
-    private static void showActiveRents(Rent rentDAO) {
+    private static void showActiveRents(ActiveRentals activeRentalsDAO) {
         // Implement logic to show active rents, e.g., using a view like Active_Rentals
         try {
             System.out.println("Active Rents:");
-            rentDAO.showAll(); // Implement a method in Rent DAO to show active rents if not exist.
+            activeRentalsDAO.showAll(); // Implement a method in Rent DAO to show active rents if not exist.
         } catch (SQLException e) {
             System.out.println("Error fetching active rents: " + e.getMessage());
         }
     }
 
-    private static void showAvailableBikes(Bicycle bicycleDAO) {
+    private static void showAvailableBikes(BicycleAvailability bicycleAvailabilityDAO) {
         // Implement logic to show available bikes, e.g., using a Bicycle_Availability materialized view
         try {
             System.out.println("Available Bikes:");
-            bicycleDAO.showAll(); // Implement a method in Bicycle DAO to show available bikes if not exist.
+            bicycleAvailabilityDAO.showAll(); // Implement a method in Bicycle DAO to show available bikes if not exist.
         } catch (SQLException e) {
             System.out.println("Error fetching available bikes: " + e.getMessage());
         }
@@ -586,7 +588,7 @@ public class Main {
         }
     }
 
-    private static void rentsSubMenu(Scanner scanner, Rent rentDAO, Bicycle bicycleDAO, User userDAO, Parking parkingDAO) {
+    private static void rentsSubMenu(Scanner scanner, Rent rentDAO, Bicycle bicycleDAO, User userDAO, Parking parkingDAO, Standing standingDAO) {
         boolean goBack = false;
         while (!goBack) {
             System.out.println(
@@ -596,7 +598,8 @@ public class Main {
                     2. Rent a bicycle (interactive)
                     3. Search rent by User_ID
                     4. Search rent by Bicycle_ID
-                    5. Go Back
+                    5. Delete a rent by ID
+                    6. Go Back
                     """
             );
             System.out.print("Enter choice: ");
@@ -605,16 +608,17 @@ public class Main {
                 case "1" -> {
                     try { rentDAO.showAll(); } catch (SQLException e) { e.printStackTrace(); }
                 }
-                case "2" -> rentBicycleInteractive(scanner, rentDAO, bicycleDAO, userDAO, parkingDAO);
+                case "2" -> rentBicycleInteractive(scanner, rentDAO, bicycleDAO, userDAO, parkingDAO, standingDAO);
                 case "3" -> searchRentByUserIdInteractive(scanner, rentDAO);
                 case "4" -> searchRentByBicycleIdInteractive(scanner, rentDAO);
-                case "5" -> goBack = true;
+                case "5" -> deleteRentByIdInteractive(scanner, rentDAO);
+                case "6" -> goBack = true;
                 default -> System.out.println("Invalid choice. Try again.");
             }
         }
     }
 
-    private static void rentBicycleInteractive(Scanner scanner, Rent rentDAO, Bicycle bicycleDAO, User userDAO, Parking parkingDAO) {
+    private static void rentBicycleInteractive(Scanner scanner, Rent rentDAO, Bicycle bicycleDAO, User userDAO, Parking parkingDAO, Standing standingDAO) {
         try {
             // Show all users and prompt User_ID
             System.out.println("Available Users:");
@@ -630,6 +634,8 @@ public class Main {
 
             System.out.println("Existing Parking Places:");
             parkingDAO.showAll();
+            System.out.println("Bicycle Locations:");
+            standingDAO.showAll();
             System.out.print("Enter Existing or New Parking Place: ");
             String parkingPlace = scanner.nextLine();
 
@@ -667,6 +673,17 @@ public class Main {
             rentDAO.searchRentByBicycleId(bicycleId);
         } catch (SQLException | NumberFormatException e) {
             System.out.println("Error searching rent: " + e.getMessage());
+        }
+    }
+
+    private static void deleteRentByIdInteractive(Scanner scanner, Rent rentDAO) {
+        try {
+            rentDAO.showAll();
+            System.out.print("Enter Rent_ID to delete: ");
+            int rentId = Integer.parseInt(scanner.nextLine());
+            rentDAO.deleteRent(rentId);
+        } catch (SQLException | NumberFormatException e) {
+            System.out.println("Error deleting rent: " + e.getMessage());
         }
     }
 

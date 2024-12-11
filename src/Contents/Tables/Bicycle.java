@@ -20,6 +20,20 @@ public class Bicycle extends ShowContents {
         }
     }
 
+    private void outputInfo(ResultSet rs) throws SQLException {
+        while (rs.next()) {
+            int bicycleId = rs.getInt("Bicycle_ID");
+            double price = rs.getDouble("Price");
+            String color = rs.getString("Color");
+            String brand = rs.getString("Brand");
+            int releaseYear = rs.getInt("Release_Date");
+
+            System.out.printf(
+                    "Bicycle ID: %d, Price: %.2f, Color: %s, Brand: %s, Release Year: %d%n",
+                    bicycleId, price, color, brand, releaseYear
+            );
+        }
+    }
     /**
      * Search a bicycle by its exact ID.
      *
@@ -39,20 +53,7 @@ public class Bicycle extends ShowContents {
         }
     }
 
-    private void outputInfo(ResultSet rs) throws SQLException {
-        while (rs.next()) {
-            int bicycleId = rs.getInt("Bicycle_ID");
-            double price = rs.getDouble("Price");
-            String color = rs.getString("Color");
-            String brand = rs.getString("Brand");
-            int releaseYear = rs.getInt("Release_Date");
 
-            System.out.printf(
-                    "ID: %d, Price: %.2f, Color: %s, Brand: %s, Release Year: %d%n",
-                    bicycleId, price, color, brand, releaseYear
-            );
-        }
-    }
 
     /**
      * Search bicycles by brand name (case-insensitive partial match).
