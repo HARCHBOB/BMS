@@ -130,9 +130,14 @@ FROM
 
 -- Materialized Views
 CREATE MATERIALIZED VIEW bms.Bicycle_Availability AS
-SELECT b.Bicycle_ID, COUNT(s.Parking_Place) AS Available_Count
+SELECT b.Bicycle_ID, b.Price, b.Color, b.Brand, b.Release_Date
 FROM bms.Bicycle b
-LEFT JOIN bms.Standing s ON b.Bicycle_ID = s.Bicycle_ID
+         LEFT JOIN bms.Standing s ON b.Bicycle_ID = s.Bicycle_ID
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM bms.Active_Rentals ar
+    WHERE ar.Bicycle_ID = b.Bicycle_ID
+)
 GROUP BY b.Bicycle_ID;
 
 CREATE MATERIALIZED VIEW bms.Parking_Usage AS
