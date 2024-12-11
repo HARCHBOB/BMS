@@ -1,6 +1,7 @@
 package Contents.Tables;
 
 import Contents.ShowContents;
+
 import java.sql.*;
 
 public class Standing extends ShowContents {
@@ -28,11 +29,6 @@ public class Standing extends ShowContents {
         }
     }
 
-    /**
-     * Search for entries by Bicycle ID.
-     *
-     * @param bicycleId The Bicycle ID to search for.
-     */
     public void searchByBicycleId(int bicycleId) throws SQLException {
         String sql = "SELECT * FROM bms.Standing WHERE Bicycle_ID = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -56,11 +52,6 @@ public class Standing extends ShowContents {
         }
     }
 
-    /**
-     * Search for entries by Parking Place.
-     *
-     * @param parkingPlace The Parking Place to search for.
-     */
     public void searchByParkingPlace(String parkingPlace) throws SQLException {
         String sql = "SELECT * FROM bms.Standing WHERE Parking_Place = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -84,12 +75,6 @@ public class Standing extends ShowContents {
         }
     }
 
-    /**
-     * Add a new entry to the Standing table.
-     *
-     * @param bicycleId    The Bicycle ID associated with the parking place.
-     * @param parkingPlace The Parking Place associated with the bicycle.
-     */
     public void addStanding(int bicycleId, String parkingPlace) throws SQLException {
         String sql = "INSERT INTO bms.Standing (Bicycle_ID, Parking_Place) VALUES (?, ?)";
         try (PreparedStatement ps = con.prepareStatement(sql)) {

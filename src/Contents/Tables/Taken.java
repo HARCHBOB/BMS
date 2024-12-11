@@ -1,6 +1,7 @@
 package Contents.Tables;
 
 import Contents.ShowContents;
+
 import java.sql.*;
 
 public class Taken extends ShowContents {
@@ -28,11 +29,6 @@ public class Taken extends ShowContents {
         }
     }
 
-    /**
-     * Search for entries by Bicycle ID.
-     *
-     * @param bicycleId The Bicycle ID to search for.
-     */
     public void searchByBicycleId(int bicycleId) throws SQLException {
         String sql = "SELECT * FROM bms.Taken WHERE Bicycle_ID = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -56,11 +52,6 @@ public class Taken extends ShowContents {
         }
     }
 
-    /**
-     * Search for entries by Rent ID.
-     *
-     * @param rentId The Rent ID to search for.
-     */
     public void searchByRentId(int rentId) throws SQLException {
         String sql = "SELECT * FROM bms.Taken WHERE Rent_ID = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -84,12 +75,6 @@ public class Taken extends ShowContents {
         }
     }
 
-    /**
-     * Add a new entry to the Taken table.
-     *
-     * @param bicycleId The Bicycle ID associated with the Rent ID.
-     * @param rentId    The Rent ID associated with the Bicycle ID.
-     */
     public void addTaken(int bicycleId, int rentId) throws SQLException {
         String sql = "INSERT INTO bms.Taken (Bicycle_ID, Rent_ID) VALUES (?, ?)";
         try (PreparedStatement ps = con.prepareStatement(sql)) {

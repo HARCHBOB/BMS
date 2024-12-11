@@ -1,6 +1,7 @@
 package Contents.Tables;
 
 import Contents.ShowContents;
+
 import java.sql.*;
 
 public class Parking extends ShowContents {
@@ -30,11 +31,6 @@ public class Parking extends ShowContents {
         }
     }
 
-    /**
-     * Search for parking entries by Parking Place.
-     *
-     * @param parkingPlace The Parking Place to search for.
-     */
     public void searchByParkingPlace(String parkingPlace) throws SQLException {
         String sql = "SELECT * FROM bms.Parking WHERE Parking_Place = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -60,11 +56,6 @@ public class Parking extends ShowContents {
         }
     }
 
-    /**
-     * Search for parking entries by Bicycle ID.
-     *
-     * @param bicycleId The Bicycle ID to search for.
-     */
     public void searchByBicycleId(int bicycleId) throws SQLException {
         String sql = "SELECT * FROM bms.Parking WHERE Bicycle_ID = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -90,14 +81,6 @@ public class Parking extends ShowContents {
         }
     }
 
-    /**
-     * Add a new parking entry.
-     *
-     * @param parkingPlace      The Parking Place name.
-     * @param bicycleId         The Bicycle ID associated with the parking place.
-     * @param parkingBeginning  The start time of the parking.
-     * @param parkingEnding     The end time of the parking.
-     */
     public void addParking(String parkingPlace, int bicycleId, Timestamp parkingBeginning, Timestamp parkingEnding) throws SQLException {
         String sql = "INSERT INTO bms.Parking (Parking_Place, Bicycle_ID, Parking_Beginning, Parking_Ending) VALUES (?, ?, ?, ?)";
         try (PreparedStatement ps = con.prepareStatement(sql)) {

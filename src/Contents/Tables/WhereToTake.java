@@ -28,11 +28,6 @@ public class WhereToTake extends ShowContents {
         }
     }
 
-    /**
-     * Search for entries by Parking Place.
-     *
-     * @param parkingPlace The parking place to search for.
-     */
     public void searchByParkingPlace(String parkingPlace) throws SQLException {
         String sql = "SELECT * FROM bms.Where_To_Take WHERE Parking_Place = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -56,11 +51,6 @@ public class WhereToTake extends ShowContents {
         }
     }
 
-    /**
-     * Search for entries by Rent ID.
-     *
-     * @param rentId The Rent ID to search for.
-     */
     public void searchByRentId(int rentId) throws SQLException {
         String sql = "SELECT * FROM bms.Where_To_Take WHERE Rent_ID = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -84,12 +74,6 @@ public class WhereToTake extends ShowContents {
         }
     }
 
-    /**
-     * Add a new entry to the Where_To_Take table.
-     *
-     * @param parkingPlace The parking place associated with the rent.
-     * @param rentId       The Rent ID associated with the parking place.
-     */
     public void addWhereToTake(String parkingPlace, int rentId) throws SQLException {
         String sql = "INSERT INTO bms.Where_To_Take (Parking_Place, Rent_ID) VALUES (?, ?)";
         try (PreparedStatement ps = con.prepareStatement(sql)) {

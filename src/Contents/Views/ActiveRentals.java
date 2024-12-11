@@ -1,6 +1,7 @@
 package Contents.Views;
 
 import Contents.ShowContents;
+
 import java.sql.*;
 
 public class ActiveRentals extends ShowContents {

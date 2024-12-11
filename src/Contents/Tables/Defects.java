@@ -1,6 +1,7 @@
 package Contents.Tables;
 
 import Contents.ShowContents;
+
 import java.sql.*;
 
 public class Defects extends ShowContents {
@@ -31,11 +32,6 @@ public class Defects extends ShowContents {
         }
     }
 
-    /**
-     * Search for defects associated with a specific bicycle.
-     *
-     * @param bicycleId The ID of the bicycle to search for defects.
-     */
     public void searchDefectsByBicycleId(int bicycleId) throws SQLException {
         String sql = "SELECT * FROM bms.Defects WHERE Bicycle_ID = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -62,14 +58,6 @@ public class Defects extends ShowContents {
         }
     }
 
-    /**
-     * Add a new defect entry for a bicycle.
-     *
-     * @param bicycleId The ID of the bicycle with the defect.
-     * @param defect    A description of the defect.
-     * @param date      The date the defect was recorded.
-     * @param zone      The zone or area of the defect.
-     */
     public void addDefect(int bicycleId, String defect, Date date, String zone) throws SQLException {
         String sql = "INSERT INTO bms.Defects (Bicycle_ID, Defect, Date, Zone) VALUES (?, ?, ?, ?)";
         try (PreparedStatement ps = con.prepareStatement(sql)) {

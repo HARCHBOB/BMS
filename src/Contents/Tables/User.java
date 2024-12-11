@@ -38,14 +38,7 @@ public class User extends ShowContents {
         }
     }
 
-
-
-    /**
-     * Search for users by a partial or full match of their name.
-     * Uses ILIKE for case-insensitive search (PostgreSQL specific).
-     *
-     * @param name The name or partial name to search for.
-     */
+     // Uses ILIKE for case-insensitive search (PostgreSQL specific).
     public void searchUserByName(String name) throws SQLException {
         String sql = "SELECT * FROM bms.User WHERE Name_Surname ILIKE ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -59,10 +52,7 @@ public class User extends ShowContents {
         }
     }
 
-
-    /**
-     * Adds a user and a client in a single transaction.
-     */
+    // Transaction
     public void addUserAndClient(String name, Date dob, String passport, String street, String house, String apartment, double deposit) throws SQLException {
         String addUserSql = "INSERT INTO bms.User (Name_Surname, Date_of_birth, Passport_Number, Street, House, Apartment) VALUES (?, ?, ?, ?, ?, ?)";
         String addClientSql = "INSERT INTO bms.Client (User_ID, Deposit) VALUES (?, ?)";
@@ -220,7 +210,6 @@ public class User extends ShowContents {
             }
         }
     }
-
 
     public void showEmployee() throws SQLException {
         String sql = "SELECT * FROM bms.Employee";

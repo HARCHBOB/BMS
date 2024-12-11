@@ -1,6 +1,7 @@
 package Contents.Tables;
 
 import Contents.ShowContents;
+
 import java.sql.*;
 
 public class Rent extends ShowContents {
@@ -33,11 +34,6 @@ public class Rent extends ShowContents {
         }
     }
 
-    /**
-     * Search for rents by User ID.
-     *
-     * @param userId The User ID to search for.
-     */
     public void searchRentByUserId(int userId) throws SQLException {
         String sql = "SELECT * FROM bms.Rent WHERE User_ID = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -66,11 +62,6 @@ public class Rent extends ShowContents {
         }
     }
 
-    /**
-     * Search for rents by Bicycle ID.
-     *
-     * @param bicycleId The Bicycle ID to search for.
-     */
     public void searchRentByBicycleId(int bicycleId) throws SQLException {
         String sql = "SELECT * FROM bms.Rent WHERE Bicycle_ID = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -99,24 +90,23 @@ public class Rent extends ShowContents {
         }
     }
 
-
     public void rentBicycle(int userId, int bicycleId, String parkingPlace, double deposit, Timestamp issueTime) throws SQLException {
         String findActiveRentSql = "SELECT Rent_ID, Parking_Place FROM bms.Rent WHERE Bicycle_ID = ? AND Return_Time IS NULL LIMIT 1";
         String deleteOldRentSql = "DELETE FROM bms.Rent WHERE Rent_ID = ?";
         String addOrUpdateParkingSql = """
-        INSERT INTO bms.Parking (Parking_Place, Bicycle_ID, Parking_Beginning, Parking_Ending)
-        VALUES (?, ?, ?, NULL)
-        ON CONFLICT (Parking_Place)
-        DO UPDATE SET Bicycle_ID = EXCLUDED.Bicycle_ID,
-                      Parking_Beginning = EXCLUDED.Parking_Beginning,
-                      Parking_Ending = EXCLUDED.Parking_Ending
-    """;
+                    INSERT INTO bms.Parking (Parking_Place, Bicycle_ID, Parking_Beginning, Parking_Ending)
+                    VALUES (?, ?, ?, NULL)
+                    ON CONFLICT (Parking_Place)
+                    DO UPDATE SET Bicycle_ID = EXCLUDED.Bicycle_ID,
+                                  Parking_Beginning = EXCLUDED.Parking_Beginning,
+                                  Parking_Ending = EXCLUDED.Parking_Ending
+                """;
         String addRentSql = "INSERT INTO bms.Rent (User_ID, Bicycle_ID, Parking_Place, Deposit, Issue_Time) VALUES (?, ?, ?, ?, ?)";
         String updateStandingSql = """
-        INSERT INTO bms.Standing (Bicycle_ID, Parking_Place)
-        VALUES (?, ?)
-        ON CONFLICT (Bicycle_ID, Parking_Place) DO NOTHING
-    """;
+                    INSERT INTO bms.Standing (Bicycle_ID, Parking_Place)
+                    VALUES (?, ?)
+                    ON CONFLICT (Bicycle_ID, Parking_Place) DO NOTHING
+                """;
 
         con.setAutoCommit(false);
         try {
@@ -184,7 +174,6 @@ public class Rent extends ShowContents {
             con.setAutoCommit(true);
         }
     }
-
 
     public void deleteRent(int rentId) throws SQLException {
         String sql = "DELETE FROM bms.Rent WHERE Rent_ID = ?";

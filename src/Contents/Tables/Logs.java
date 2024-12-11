@@ -1,6 +1,7 @@
 package Contents.Tables;
 
 import Contents.ShowContents;
+
 import java.sql.*;
 
 public class Logs extends ShowContents {
@@ -24,22 +25,12 @@ public class Logs extends ShowContents {
         }
     }
 
-    /**
-     * Add a new log entry to the bms.Logs table.
-     *
-     * @param event The event description to log.
-     */
     public void addLog(String event) throws SQLException {
         String sql = "INSERT INTO bms.Logs (Event) VALUES (?)";
         executeUpdate(sql, event);
         System.out.println("Log entry added successfully: " + event);
     }
 
-    /**
-     * Search logs by event description.
-     *
-     * @param eventPartial Partial or full event description to search for.
-     */
     public void searchLogsByEvent(String eventPartial) throws SQLException {
         String sql = "SELECT * FROM bms.Logs WHERE Event ILIKE ?";
         try (ResultSet rs = executeQuery(sql, "%" + eventPartial + "%")) {
