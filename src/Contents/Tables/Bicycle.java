@@ -93,6 +93,40 @@ public class Bicycle extends ShowContents {
     }
 
     /**
+     * Updates a bicycle's price and related defects in a single transaction.
+     */
+    public void updateBicycleAndDefects(int bicycleId, double newPrice, String defectUpdate) throws SQLException {
+        String updateBicycleSql = "UPDATE bms.Bicycle SET Price = ? WHERE Bicycle_ID = ?";
+        String updateDefectSql = "UPDATE bms.Defects SET Defect = ? WHERE Bicycle_ID = ?";
+
+        try {
+            con.setAutoCommit(false); // Start transaction
+
+            // Update bicycle
+            try (PreparedStatement updateBicyclePs = con.prepareStatement(updateBicycleSql)) {
+                updateBicyclePs.setDouble(1, newPrice);
+                updateBicyclePs.setInt(2, bicycleId);
+                updateBicyclePs.executeUpdate();
+            }
+
+            // Update defects
+            try (PreparedStatement updateDefectPs = con.prepareStatement(updateDefectSql)) {
+                updateDefectPs.setString(1, defectUpdate);
+                updateDefectPs.setInt(2, bicycleId);
+                updateDefectPs.executeUpdate();
+            }
+
+            con.commit(); // Commit transaction
+            System.out.println("Bicycle and related defects updated successfully.");
+        } catch (SQLException e) {
+            con.rollback(); // Rollback transaction on error
+            throw e;
+        } finally {
+            con.setAutoCommit(true); // Reset auto-commit
+        }
+    }
+
+    /**
      * Deletes a bicycle by its exact ID.
      *
      * @param bicycleId The bicycle ID to delete.

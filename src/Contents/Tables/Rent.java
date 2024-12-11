@@ -108,17 +108,45 @@ public class Rent extends ShowContents {
      * @param deposit      The deposit amount for the rent.
      * @param issueTime    The timestamp when the rent was issued.
      */
-    public void addRent(int userId, int bicycleId, String parkingPlace, double deposit, Timestamp issueTime) throws SQLException {
-        String sql = "INSERT INTO bms.Rent (User_ID, Bicycle_ID, Parking_Place, Deposit, Issue_Time) VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, userId);
-            ps.setInt(2, bicycleId);
-            ps.setString(3, parkingPlace);
-            ps.setDouble(4, deposit);
-            ps.setTimestamp(5, issueTime);
+    public void rentBicycle(int userId, int bicycleId, String parkingPlace, double deposit, Timestamp issueTime) throws SQLException {
+        String addParkingSql = "INSERT INTO bms.Parking (Parking_Place, Bicycle_ID, Parking_Beginning, Parking_Ending) VALUES (?, NULL, ?, NULL) ON CONFLICT (Parking_Place) DO NOTHING";
+        String addRentSql = "INSERT INTO bms.Rent (User_ID, Bicycle_ID, Parking_Place, Deposit, Issue_Time) VALUES (?, ?, ?, ?, ?)";
+        String updateStandingSql = "INSERT INTO bms.Standing (Bicycle_ID, Parking_Place) VALUES (?, ?)";
 
-            ps.executeUpdate();
-            System.out.println("New rent added successfully.");
+        try {
+            con.setAutoCommit(false); // Start transaction
+
+            // Ensure parking place exists
+            try (PreparedStatement addParkingPs = con.prepareStatement(addParkingSql)) {
+                addParkingPs.setString(1, parkingPlace);
+                addParkingPs.setTimestamp(2, issueTime);
+                addParkingPs.executeUpdate();
+            }
+
+            // Add rent
+            try (PreparedStatement addRentPs = con.prepareStatement(addRentSql)) {
+                addRentPs.setInt(1, userId);
+                addRentPs.setInt(2, bicycleId);
+                addRentPs.setString(3, parkingPlace);
+                addRentPs.setDouble(4, deposit);
+                addRentPs.setTimestamp(5, issueTime);
+                addRentPs.executeUpdate();
+            }
+
+            // Update standing
+            try (PreparedStatement updateStandingPs = con.prepareStatement(updateStandingSql)) {
+                updateStandingPs.setInt(1, bicycleId);
+                updateStandingPs.setString(2, parkingPlace);
+                updateStandingPs.executeUpdate();
+            }
+
+            con.commit(); // Commit transaction
+            System.out.println("Bicycle rented, parking added if necessary, and status updated successfully.");
+        } catch (SQLException e) {
+            con.rollback(); // Rollback transaction on error
+            throw e;
+        } finally {
+            con.setAutoCommit(true); // Reset auto-commit
         }
     }
 
