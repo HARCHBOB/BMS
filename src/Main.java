@@ -1,7 +1,12 @@
+import Contents.MaterializedViews.BicycleAvailability;
+import Contents.MaterializedViews.BicycleStatus;
 import Contents.Tables.*;
 import Contents.Transactions.*;
+import Contents.Views.ActiveRentals;
 
+import java.io.IOException;
 import java.sql.*;
+import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
@@ -10,8 +15,37 @@ public class Main {
                     "jdbc:postgresql://localhost:5432/postgres",
                     "postgres",
                     "1234");
+            Scanner scanner = new Scanner(System.in);
 
-            Bicycle bicycle = new Bicycle(con);
+            boolean run = true;
+            do {
+                int answer = showOptions(scanner);
+                switch (answer) {
+                    case 1:
+                        ActiveRentals ar = new ActiveRentals(con);
+                        ar.showAll();
+                        System.in.read();
+                        break;
+                    case 2:
+                        BicycleStatus bs = new BicycleStatus(con);
+                        bs.searchByBicycleStatus("Parked");
+                        System.in.read();
+                        break;
+                    case 3:
+                        break;
+                    case 4:
+                        break;
+                    case 5:
+                        break;
+                    case 6:
+                        run = false;
+                        break;
+                    default:
+                        System.out.println("Unknown command. Try again.");
+                }
+            } while (run);
+
+            {/*Bicycle bicycle = new Bicycle(con);
             Client client = new Client(con);
             Defects defects = new Defects(con);
             Employee employee = new Employee(con);
@@ -34,9 +68,9 @@ public class Main {
             standing.showAll();
             taken.showAll();
             user.showAll();
-            whereToTake.showAll();
+            whereToTake.showAll();*/}
 
-            /*System.out.println("\n TEST TRANSACTIONS:");
+            {/*System.out.println("\n TEST TRANSACTIONS:");
             UserClientTransaction userClientTx = new UserClientTransaction(con);
             BicycleTransaction bicycleTx = new BicycleTransaction(con);
 
@@ -50,9 +84,9 @@ public class Main {
             bicycleTx.updateBicycleAndDefects(1, 350.0, "Brake pads replaced");
 
             // Delete user and related client
-            userClientTx.deleteUserAndClient(8);*/
+            userClientTx.deleteUserAndClient(8);*/}
 
-           /* // Testing Safety:
+            {/* // Testing Safety:
             System.out.println("\nTESTING INSERTS AND SEARCH");
 
             // Create User (required for Client, Rent, Employee)
@@ -104,14 +138,33 @@ public class Main {
             System.out.println("New employee created.");
             employee.searchEmployeeByUserId(1);
 
-            // Create Defect (requires Bicycle)
+            // Add Defect (requires Bicycle)
             defects.addDefect(1, "Flat tire", Date.valueOf("2024-12-09"), "Front wheel");
             System.out.println("New defect created.");
-            defects.searchDefectsByBicycleId(1);*/
+            defects.searchDefectsByBicycleId(1);*/}
 
+            scanner.close();
             con.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private static int showOptions(Scanner scanner) throws IOException {
+        System.out.println(
+                """
+                        Bike Management System
+                        Chose what you want to do:
+                        1. Show active rents.
+                        2. Show available bikes.
+                        3. Bikes.
+                        4. Users.
+                        5. Rents.
+                        6. Exit.
+                        """
+        );
+
+        System.out.print("Your command: ");
+        return scanner.nextInt();
     }
 }
