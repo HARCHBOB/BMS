@@ -21,6 +21,7 @@ public class Main {
             User userDAO = new User(con);
             Rent rentDAO = new Rent(con);
             Parking parkingDAO = new Parking(con);
+            Defects defectsDAO = new Defects(con);
 
             Scanner scanner = new Scanner(System.in);
             boolean running = true;
@@ -33,7 +34,8 @@ public class Main {
                     case 3 -> bikesSubMenu(scanner, bicycleDAO);
                     case 4 -> usersSubMenu(scanner, userDAO);
                     case 5 -> rentsSubMenu(scanner, rentDAO, bicycleDAO, userDAO, parkingDAO);
-                    case 6 -> running = false;
+                    case 6 -> defectsSubMenu(scanner, defectsDAO);
+                    case 7 -> running = false;
                     default -> System.out.println("Invalid choice. Please try again.");
                 }
             }
@@ -157,7 +159,8 @@ public class Main {
                 3. Bikes.
                 4. Users.
                 5. Rents.
-                6. Exit.
+                6. Defects.
+                7. Exit.
                 """
         );
         System.out.print("Enter choice: ");
@@ -190,25 +193,33 @@ public class Main {
             System.out.println(
                     """
                     Bikes Menu:
-                    1. Show all bicycles
-                    2. Add a new bicycle
-                    3. Search bicycle by ID
-                    4. Search bicycle by brand
-                    5. Go Back
+                    1. Show All Bicycles
+                    2. Add Bicycle
+                    3. Search Bicycle
+                    4. Update Bicycle and Defects
+                    5. Delete Bicycle
+                    6. Go Back
                     """
             );
             System.out.print("Enter choice: ");
             String choice = scanner.nextLine();
             switch (choice) {
-                case "1" -> {
-                    try { bicycleDAO.showAll(); } catch (SQLException e) { e.printStackTrace(); }
-                }
+                case "1" -> showAllBicycles(bicycleDAO);
                 case "2" -> addBicycleInteractive(scanner, bicycleDAO);
-                case "3" -> searchBicycleByIdInteractive(scanner, bicycleDAO);
-                case "4" -> searchBicycleByBrandInteractive(scanner, bicycleDAO);
-                case "5" -> goBack = true;
+                case "3" -> searchBicycleSubMenu(scanner, bicycleDAO);
+                case "4" -> updateBicycleAndDefectsInteractive(scanner, bicycleDAO);
+                case "5" -> deleteBicycleInteractive(scanner, bicycleDAO);
+                case "6" -> goBack = true;
                 default -> System.out.println("Invalid choice. Try again.");
             }
+        }
+    }
+
+    private static void showAllBicycles(Bicycle bicycleDAO) {
+        try {
+            bicycleDAO.showAll();
+        } catch (SQLException e) {
+            System.out.println("Error showing all bicycles: " + e.getMessage());
         }
     }
 
@@ -233,13 +244,35 @@ public class Main {
         }
     }
 
+    private static void searchBicycleSubMenu(Scanner scanner, Bicycle bicycleDAO) {
+        boolean goBack = false;
+        while (!goBack) {
+            System.out.println(
+                    """
+                    Search Bicycle:
+                    1. By ID
+                    2. By Brand
+                    3. Go Back
+                    """
+            );
+            System.out.print("Enter choice: ");
+            String choice = scanner.nextLine();
+            switch (choice) {
+                case "1" -> searchBicycleByIdInteractive(scanner, bicycleDAO);
+                case "2" -> searchBicycleByBrandInteractive(scanner, bicycleDAO);
+                case "3" -> goBack = true;
+                default -> System.out.println("Invalid choice. Try again.");
+            }
+        }
+    }
+
     private static void searchBicycleByIdInteractive(Scanner scanner, Bicycle bicycleDAO) {
         try {
             System.out.print("Enter Bicycle_ID: ");
             int bicycleId = Integer.parseInt(scanner.nextLine());
             bicycleDAO.searchBicycleById(bicycleId);
         } catch (SQLException | NumberFormatException e) {
-            System.out.println("Error searching bicycle: " + e.getMessage());
+            System.out.println("Error searching bicycle by ID: " + e.getMessage());
         }
     }
 
@@ -249,7 +282,34 @@ public class Main {
             String brand = scanner.nextLine();
             bicycleDAO.searchBicycleByBrand(brand);
         } catch (SQLException e) {
-            System.out.println("Error searching bicycle: " + e.getMessage());
+            System.out.println("Error searching bicycle by brand: " + e.getMessage());
+        }
+    }
+
+    private static void updateBicycleAndDefectsInteractive(Scanner scanner, Bicycle bicycleDAO) {
+        try {
+            System.out.print("Enter Bicycle_ID to update: ");
+            int bicycleId = Integer.parseInt(scanner.nextLine());
+
+            System.out.print("Enter new Price: ");
+            double newPrice = Double.parseDouble(scanner.nextLine());
+
+            System.out.print("Enter new Defect description: ");
+            String defectUpdate = scanner.nextLine();
+
+            bicycleDAO.updateBicycleAndDefects(bicycleId, newPrice, defectUpdate);
+        } catch (SQLException | NumberFormatException e) {
+            System.out.println("Error updating bicycle and defects: " + e.getMessage());
+        }
+    }
+
+    private static void deleteBicycleInteractive(Scanner scanner, Bicycle bicycleDAO) {
+        try {
+            System.out.print("Enter Bicycle_ID to delete: ");
+            int bicycleId = Integer.parseInt(scanner.nextLine());
+            bicycleDAO.deleteBicycle(bicycleId);
+        } catch (SQLException | NumberFormatException e) {
+            System.out.println("Error deleting bicycle: " + e.getMessage());
         }
     }
 
@@ -473,6 +533,7 @@ public class Main {
 
     private static void deleteUserByIdInteractive(Scanner scanner, User userDAO) {
         try {
+            userDAO.showAll();
             System.out.print("Enter User_ID to delete: ");
             int userId = Integer.parseInt(scanner.nextLine());
             userDAO.deleteUserById(userId);
@@ -483,6 +544,7 @@ public class Main {
 
     private static void deleteUserByNameInteractive(Scanner scanner, User userDAO) {
         try {
+            userDAO.showAll();
             System.out.print("Enter name (partial/complete) to delete: ");
             String name = scanner.nextLine();
             userDAO.deleteUserByName(name);
@@ -493,6 +555,7 @@ public class Main {
 
     private static void deleteUserAndClientInteractive(Scanner scanner, User userDAO) {
         try {
+            userDAO.showAll();
             System.out.print("Enter User_ID to delete user and client: ");
             int userId = Integer.parseInt(scanner.nextLine());
             userDAO.deleteUserAndClient(userId);
@@ -503,6 +566,7 @@ public class Main {
 
     private static void deleteClientInteractive(Scanner scanner, User userDAO) {
         try {
+            userDAO.showClients();
             System.out.print("Enter Client_ID to delete: ");
             int clientId = Integer.parseInt(scanner.nextLine());
             userDAO.deleteClient(clientId);
@@ -513,6 +577,7 @@ public class Main {
 
     private static void deleteEmployeeInteractive(Scanner scanner, User userDAO) {
         try {
+            userDAO.showEmployee();
             System.out.print("Enter Admin_ID to delete employee: ");
             int adminId = Integer.parseInt(scanner.nextLine());
             userDAO.deleteEmployee(adminId);
@@ -602,6 +667,81 @@ public class Main {
             rentDAO.searchRentByBicycleId(bicycleId);
         } catch (SQLException | NumberFormatException e) {
             System.out.println("Error searching rent: " + e.getMessage());
+        }
+    }
+
+    private static void defectsSubMenu(Scanner scanner, Defects defectsDAO) {
+        boolean goBack = false;
+        while (!goBack) {
+            System.out.println(
+                    """
+                    Defects Menu:
+                    1. Show All Defects
+                    2. Add Defect
+                    3. Search Defects by Bicycle_ID
+                    4. Delete Defect
+                    5. Go Back
+                    """
+            );
+            System.out.print("Enter choice: ");
+            String choice = scanner.nextLine();
+            switch (choice) {
+                case "1" -> showAllDefects(defectsDAO);
+                case "2" -> addDefectInteractive(scanner, defectsDAO);
+                case "3" -> searchDefectsByBicycleIdInteractive(scanner, defectsDAO);
+                case "4" -> deleteDefectInteractive(scanner, defectsDAO);
+                case "5" -> goBack = true;
+                default -> System.out.println("Invalid choice. Try again.");
+            }
+        }
+    }
+
+    private static void showAllDefects(Defects defectsDAO) {
+        try {
+            defectsDAO.showAll();
+        } catch (SQLException e) {
+            System.out.println("Error showing all defects: " + e.getMessage());
+        }
+    }
+
+    private static void addDefectInteractive(Scanner scanner, Defects defectsDAO) {
+        try {
+            System.out.print("Enter Bicycle_ID: ");
+            int bicycleId = Integer.parseInt(scanner.nextLine());
+
+            System.out.print("Enter Defect description: ");
+            String defectDescription = scanner.nextLine();
+
+            System.out.print("Enter Date of defect (yyyy-MM-dd): ");
+            String dateStr = scanner.nextLine();
+            Date date = Date.valueOf(dateStr);
+
+            System.out.print("Enter Zone (e.g., 'Front Wheel', 'Frame'): ");
+            String zone = scanner.nextLine();
+
+            defectsDAO.addDefect(bicycleId, defectDescription, date, zone);
+        } catch (SQLException | IllegalArgumentException e) {
+            System.out.println("Error adding defect: " + e.getMessage());
+        }
+    }
+
+    private static void searchDefectsByBicycleIdInteractive(Scanner scanner, Defects defectsDAO) {
+        try {
+            System.out.print("Enter Bicycle_ID: ");
+            int bicycleId = Integer.parseInt(scanner.nextLine());
+            defectsDAO.searchDefectsByBicycleId(bicycleId);
+        } catch (SQLException | NumberFormatException e) {
+            System.out.println("Error searching defects: " + e.getMessage());
+        }
+    }
+
+    private static void deleteDefectInteractive(Scanner scanner, Defects defectsDAO) {
+        try {
+            System.out.print("Enter Defect_ID to delete: ");
+            int defectId = Integer.parseInt(scanner.nextLine());
+            defectsDAO.deleteDefect(defectId);
+        } catch (SQLException | NumberFormatException e) {
+            System.out.println("Error deleting defect: " + e.getMessage());
         }
     }
 }
