@@ -23,6 +23,8 @@ public class Main {
             Defects defectsDAO = new Defects(con);
             ActiveRentals activeRentalsDAO = new ActiveRentals(con);
             Standing standingDAO = new Standing(con);
+
+
             BicycleAvailability bicycleAvailabilityDAO = new BicycleAvailability(con);
 
             Scanner scanner = new Scanner(System.in);
@@ -543,11 +545,8 @@ public class Main {
             String issueTimeStr = scanner.nextLine();
             Timestamp issueTime = issueTimeStr.isEmpty() ? Timestamp.valueOf(LocalDateTime.now()) : Timestamp.valueOf(issueTimeStr);
 
-            // Call rentBicycle from transaction class or directly from Rent if integrated there.
-            // If this logic is in BicycleTransaction, you'd have an instance here. For now, assuming rentDAO handles it:
             rentDAO.rentBicycle(userId, bicycleId, parkingPlace, deposit, issueTime);
 
-            System.out.println("Bicycle rented successfully.");
         } catch (SQLException | IllegalArgumentException e) {
             System.out.println("Error renting bicycle: " + e.getMessage());
         }

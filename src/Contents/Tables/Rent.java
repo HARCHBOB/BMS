@@ -93,20 +93,26 @@ public class Rent extends ShowContents {
     public void rentBicycle(int userId, int bicycleId, String parkingPlace, double deposit, Timestamp issueTime) throws SQLException {
         String findActiveRentSql = "SELECT Rent_ID, Parking_Place FROM bms.Rent WHERE Bicycle_ID = ? AND Return_Time IS NULL LIMIT 1";
         String deleteOldRentSql = "DELETE FROM bms.Rent WHERE Rent_ID = ?";
-        String addOrUpdateParkingSql = """
-                    INSERT INTO bms.Parking (Parking_Place, Bicycle_ID, Parking_Beginning, Parking_Ending)
-                    VALUES (?, ?, ?, NULL)
-                    ON CONFLICT (Parking_Place)
-                    DO UPDATE SET Bicycle_ID = EXCLUDED.Bicycle_ID,
-                                  Parking_Beginning = EXCLUDED.Parking_Beginning,
-                                  Parking_Ending = EXCLUDED.Parking_Ending
-                """;
+
+        // Check if bicycle is currently standing at the given place
+        String findStandingSql = """
+        SELECT 1 FROM bms.Standing
+        WHERE Bicycle_ID = ?
+          AND Parking_Place = ?
+          AND (Parking_Ending IS NULL OR Parking_Ending > ?)
+        LIMIT 1
+    """;
+
+        // Update standing to mark the bicycle as taken out (end the standing period)
+        String endStandingSql = """
+        UPDATE bms.Standing
+        SET Parking_Ending = ?
+        WHERE Bicycle_ID = ?
+          AND Parking_Place = ?
+          AND Parking_Ending IS NULL
+    """;
+
         String addRentSql = "INSERT INTO bms.Rent (User_ID, Bicycle_ID, Parking_Place, Deposit, Issue_Time) VALUES (?, ?, ?, ?, ?)";
-        String updateStandingSql = """
-                    INSERT INTO bms.Standing (Bicycle_ID, Parking_Place)
-                    VALUES (?, ?)
-                    ON CONFLICT (Bicycle_ID, Parking_Place) DO NOTHING
-                """;
 
         con.setAutoCommit(false);
         try {
@@ -140,15 +146,30 @@ public class Rent extends ShowContents {
                 }
             }
 
-            // 3. Insert or update Parking record
-            try (PreparedStatement addParkingPs = con.prepareStatement(addOrUpdateParkingSql)) {
-                addParkingPs.setString(1, parkingPlace);
-                addParkingPs.setInt(2, bicycleId);
-                addParkingPs.setTimestamp(3, issueTime);
-                addParkingPs.executeUpdate();
+            // 3. Ensure the bicycle is currently standing at the requested parking place
+            try (PreparedStatement ps = con.prepareStatement(findStandingSql)) {
+                ps.setInt(1, bicycleId);
+                ps.setString(2, parkingPlace);
+                ps.setTimestamp(3, issueTime);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) {
+                        // Bicycle not currently standing at this place, can't rent from here
+                        System.out.println("Bicycle is not currently at " + parkingPlace + ". Cannot rent.");
+                        con.rollback();
+                        return;
+                    }
+                }
             }
 
-            // 4. Add new Rent
+            // 4. End the standing period for this bicycle at the given parking place
+            try (PreparedStatement ps = con.prepareStatement(endStandingSql)) {
+                ps.setTimestamp(1, issueTime);
+                ps.setInt(2, bicycleId);
+                ps.setString(3, parkingPlace);
+                ps.executeUpdate();
+            }
+
+            // 5. Add new Rent record
             try (PreparedStatement addRentPs = con.prepareStatement(addRentSql)) {
                 addRentPs.setInt(1, userId);
                 addRentPs.setInt(2, bicycleId);
@@ -158,15 +179,8 @@ public class Rent extends ShowContents {
                 addRentPs.executeUpdate();
             }
 
-            // 5. Update Standing (if needed)
-            try (PreparedStatement updateStandingPs = con.prepareStatement(updateStandingSql)) {
-                updateStandingPs.setInt(1, bicycleId);
-                updateStandingPs.setString(2, parkingPlace);
-                updateStandingPs.executeUpdate();
-            }
-
             con.commit();
-            System.out.println("Bicycle rented successfully. Old rent removed (if different location), parking updated, and standing set.");
+            System.out.println("Bicycle rented successfully. Old rent removed (if different location), standing updated to reflect departure, and new rent inserted.");
         } catch (SQLException e) {
             con.rollback();
             throw e;
@@ -174,6 +188,7 @@ public class Rent extends ShowContents {
             con.setAutoCommit(true);
         }
     }
+
 
     public void deleteRent(int rentId) throws SQLException {
         String sql = "DELETE FROM bms.Rent WHERE Rent_ID = ?";
