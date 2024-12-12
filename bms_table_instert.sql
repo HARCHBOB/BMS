@@ -41,9 +41,8 @@ VALUES
     (1, 'Garage A', '2024-01-01 08:00:00'),
     (2, 'Garage B', '2024-01-02 09:00:00'),
     (3, 'Garage C', '2024-05-01 10:00:00'),
-    (1, 'Central Parking', '2024-12-09 08:00:00'), -- Bicycle 1 also stands at Central Parking at a later time
-    (4, 'Main Parking', '2024-12-10 09:00:00'),
-    (4, 'Aboba Island', '2024-12-11 21:11:45'); -- Bicycle 4 also placed in another place
+    (4, 'Garage A', '2024-12-09 08:00:00'); -- Bicycle 1 also stands at Central Parking at a later time
+
 
 
 INSERT INTO bms.Rent (User_ID, Bicycle_ID, Parking_Place, Deposit, Issue_Time)

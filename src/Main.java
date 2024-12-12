@@ -39,7 +39,9 @@ public class Main {
                     case 4 -> usersSubMenu(scanner, userDAO);
                     case 5 -> rentsSubMenu(scanner, rentDAO, bicycleDAO, userDAO, parkingDAO, standingDAO);
                     case 6 -> defectsSubMenu(scanner, defectsDAO);
-                    case 7 -> running = false;
+                    case 7 -> parkingSubMenu(scanner, parkingDAO);
+                    case 8 -> standingSubMenu(scanner, standingDAO, parkingDAO, bicycleDAO);
+                    case 9 -> running = false;
                     default -> System.out.println("Invalid choice. Please try again.");
                 }
             }
@@ -63,7 +65,9 @@ public class Main {
                 4. Users.
                 5. Rents.
                 6. Defects.
-                7. Exit.
+                7. Parking.
+                8. Standing.
+                9. Exit.
                 """
         );
         System.out.print("Enter choice: ");
@@ -655,6 +659,179 @@ public class Main {
             defectsDAO.deleteDefect(defectId);
         } catch (SQLException | NumberFormatException e) {
             System.out.println("Error deleting defect: " + e.getMessage());
+        }
+    }
+
+    private static void parkingSubMenu(Scanner scanner, Parking parkingDAO) {
+        boolean goBack = false;
+        while (!goBack) {
+            System.out.println(
+                    """
+                    Parking Menu:
+                    1. Show All Parking
+                    2. Search by Parking Place
+                    3. Add Parking
+                    4. Delete Parking
+                    5. Go Back
+                    """
+            );
+            System.out.print("Enter choice: ");
+            String choice = scanner.nextLine();
+            switch (choice) {
+                case "1" -> {
+                    try {
+                        parkingDAO.showAll();
+                    } catch (SQLException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
+                }
+                case "2" -> searchParkingByPlaceInteractive(scanner, parkingDAO);
+                case "3" -> addParkingInteractive(scanner, parkingDAO);
+                case "4" -> deleteParkingInteractive(scanner, parkingDAO);
+                case "5" -> goBack = true;
+                default -> System.out.println("Invalid choice. Try again.");
+            }
+        }
+    }
+
+    private static void searchParkingByPlaceInteractive(Scanner scanner, Parking parkingDAO) {
+        try {
+            System.out.print("Enter Parking Place: ");
+            String place = scanner.nextLine();
+            parkingDAO.searchByParkingPlace(place);
+        } catch (SQLException e) {
+            System.out.println("Error searching parking: " + e.getMessage());
+        }
+    }
+
+    private static void addParkingInteractive(Scanner scanner, Parking parkingDAO) {
+        try {
+            System.out.print("Enter Parking Place: ");
+            String place = scanner.nextLine();
+
+            System.out.print("Enter Capacity: ");
+            int capacity = Integer.parseInt(scanner.nextLine());
+
+            System.out.print("Enter Location Details: ");
+            String locationDetails = scanner.nextLine();
+
+            parkingDAO.addParking(place, capacity, locationDetails);
+        } catch (SQLException | NumberFormatException e) {
+            System.out.println("Error adding parking: " + e.getMessage());
+        }
+    }
+
+    private static void deleteParkingInteractive(Scanner scanner, Parking parkingDAO) {
+        try {
+            System.out.print("Enter partial or full Parking Place name to delete: ");
+            String place = scanner.nextLine();
+            parkingDAO.deleteParking(place);
+        } catch (SQLException e) {
+            System.out.println("Error deleting parking: " + e.getMessage());
+        }
+    }
+
+    private static void standingSubMenu(Scanner scanner, Standing standingDAO, Parking parkingDAO, Bicycle bicycleDAO) {
+        boolean goBack = false;
+        while (!goBack) {
+            System.out.println(
+                    """
+                    Standing Menu:
+                    1. Show All Standing
+                    2. Search by Bicycle ID
+                    3. Search by Parking Place
+                    4. Add Standing
+                    5. End Standing
+                    6. Delete Standing
+                    7. Go Back
+                    """
+            );
+            System.out.print("Enter choice: ");
+            String choice = scanner.nextLine();
+            switch (choice) {
+                case "1" -> {
+                    try {
+                        standingDAO.showAll();
+                    } catch (SQLException e) {
+                        System.out.println("Error: " + e.getMessage());
+                    }
+                }
+                case "2" -> searchStandingByBicycleIdInteractive(scanner, standingDAO);
+                case "3" -> searchStandingByPlaceInteractive(scanner, standingDAO);
+                case "4" -> addStandingInteractive(scanner, standingDAO, parkingDAO, bicycleDAO);
+                case "5" -> endStandingInteractive(scanner, standingDAO, parkingDAO, bicycleDAO);
+                case "6" -> deleteStandingInteractive(scanner, standingDAO, parkingDAO, bicycleDAO);
+                case "7" -> goBack = true;
+                default -> System.out.println("Invalid choice. Try again.");
+            }
+        }
+    }
+
+    private static void searchStandingByBicycleIdInteractive(Scanner scanner, Standing standingDAO) {
+        try {
+            System.out.print("Enter Bicycle ID: ");
+            int bicycleId = Integer.parseInt(scanner.nextLine());
+            standingDAO.searchByBicycleId(bicycleId);
+        } catch (SQLException | NumberFormatException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private static void searchStandingByPlaceInteractive(Scanner scanner, Standing standingDAO) {
+        try {
+            System.out.print("Enter Parking Place: ");
+            String place = scanner.nextLine();
+            standingDAO.searchByParkingPlace(place);
+        } catch (SQLException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    private static void addStandingInteractive(Scanner scanner, Standing standingDAO, Parking parkingDAO, Bicycle bicycleDAO) {
+        try {
+            bicycleDAO.showAll();
+            System.out.print("Enter Bicycle ID: ");
+            int bicycleId = Integer.parseInt(scanner.nextLine());
+
+            parkingDAO.showAll();
+            System.out.print("Enter Parking Place: ");
+            String place = scanner.nextLine();
+
+            standingDAO.addStanding(bicycleId, place);
+        } catch (SQLException | NumberFormatException e) {
+            System.out.println("Error adding standing: " + e.getMessage());
+        }
+    }
+
+    private static void endStandingInteractive(Scanner scanner, Standing standingDAO, Parking parkingDAO, Bicycle bicycleDAO) {
+        try {
+            bicycleDAO.showAll();
+            System.out.print("Enter Bicycle ID to end standing: ");
+            int bicycleId = Integer.parseInt(scanner.nextLine());
+
+            parkingDAO.showAll();
+            System.out.print("Enter Parking Place: ");
+            String place = scanner.nextLine();
+
+            standingDAO.endStanding(bicycleId, place);
+        } catch (SQLException | NumberFormatException e) {
+            System.out.println("Error ending standing: " + e.getMessage());
+        }
+    }
+
+    private static void deleteStandingInteractive(Scanner scanner, Standing standingDAO, Parking parkingDAO, Bicycle bicycleDAO) {
+        try {
+            bicycleDAO.showAll();
+            System.out.print("Enter Bicycle ID: ");
+            int bicycleId = Integer.parseInt(scanner.nextLine());
+
+            parkingDAO.showAll();
+            System.out.print("Enter Parking Place: ");
+            String place = scanner.nextLine();
+
+            standingDAO.deleteStanding(bicycleId, place);
+        } catch (SQLException | NumberFormatException e) {
+            System.out.println("Error deleting standing: " + e.getMessage());
         }
     }
 }

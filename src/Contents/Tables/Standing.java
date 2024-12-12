@@ -81,26 +81,56 @@ public class Standing extends ShowContents {
         }
     }
 
-    /**
-     * Adds a new standing entry for a bicycle at a given parking place.
-     * Parking_Beginning is set to CURRENT_TIMESTAMP by default.
-     * If you need a specific start time, add a parameter and adjust the SQL accordingly.
-     */
     public void addStanding(int bicycleId, String parkingPlace) throws SQLException {
-        String sql = "INSERT INTO bms.Standing (Bicycle_ID, Parking_Place) VALUES (?, ?)";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, bicycleId);
-            ps.setString(2, parkingPlace);
+        // 1. Check if the bicycle is currently standing elsewhere
+        String findCurrentSql = "SELECT Parking_Place FROM bms.Standing WHERE Bicycle_ID = ? AND Parking_Ending IS NULL LIMIT 1";
+        String deleteOldSql = "DELETE FROM bms.Standing WHERE Bicycle_ID = ? AND Parking_Place = ?";
+        String insertNewSql = "INSERT INTO bms.Standing (Bicycle_ID, Parking_Place) VALUES (?, ?)";
 
-            ps.executeUpdate();
-            System.out.println("New standing entry added successfully.");
+        con.setAutoCommit(false);
+        try {
+            String currentPlace = null;
+            try (PreparedStatement ps = con.prepareStatement(findCurrentSql)) {
+                ps.setInt(1, bicycleId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        currentPlace = rs.getString("Parking_Place");
+                    }
+                }
+            }
+
+            // 2. If the bicycle is standing elsewhere and that place is not the same as the new one
+            if (currentPlace != null && !currentPlace.equals(parkingPlace)) {
+                // Delete the old standing record
+                try (PreparedStatement ps = con.prepareStatement(deleteOldSql)) {
+                    ps.setInt(1, bicycleId);
+                    ps.setString(2, currentPlace);
+                    ps.executeUpdate();
+                }
+            } else if (currentPlace != null && currentPlace.equals(parkingPlace)) {
+                // Bicycle is already standing at this place, no need to insert a new record
+                System.out.println("Bicycle is already standing at the same parking place. No changes made.");
+                con.rollback();
+                return;
+            }
+
+            // 3. Insert the new standing entry
+            try (PreparedStatement ps = con.prepareStatement(insertNewSql)) {
+                ps.setInt(1, bicycleId);
+                ps.setString(2, parkingPlace);
+                ps.executeUpdate();
+            }
+
+            con.commit();
+            System.out.println("New standing entry added successfully, old standing (if any) was updated.");
+        } catch (SQLException e) {
+            con.rollback();
+            throw e;
+        } finally {
+            con.setAutoCommit(true);
         }
     }
 
-    /**
-     * Ends a standing period by updating the Parking_Ending time to the current timestamp.
-     * This is often more realistic than deleting the record if you want history.
-     */
     public void endStanding(int bicycleId, String parkingPlace) throws SQLException {
         String sql = "UPDATE bms.Standing SET Parking_Ending = CURRENT_TIMESTAMP WHERE Bicycle_ID = ? AND Parking_Place = ? AND Parking_Ending IS NULL";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
